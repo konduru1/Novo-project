@@ -36,16 +36,22 @@ const PatientListScreen = () => {
 
   const [showFilter, setShowFilter] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [filterStatus, setFilterStatus] = useState('All');
+
+  const filteredPatients = useMemo(() => {
+    if (filterStatus === 'All') return filteredList;
+    return filteredList.filter(p => (p.status || '').toLowerCase() === filterStatus.toLowerCase());
+  }, [filteredList, filterStatus]);
 
   // Calculate total pages
-  const totalPages = Math.ceil(filteredList.length / PAGE_SIZE);
+  const totalPages = Math.ceil(filteredPatients.length / PAGE_SIZE);
 
   // Get patients for current page
   const paginatedPatients = useMemo(() => {
     const start = (currentPage - 1) * PAGE_SIZE;
     const end = start + PAGE_SIZE;
-    return filteredList.slice(start, end);
-  }, [filteredList, currentPage]);
+    return filteredPatients.slice(start, end);
+  }, [filteredPatients, currentPage]);
 
   useEffect(() => {
     dispatch(fetchPatients());
@@ -54,7 +60,7 @@ const PatientListScreen = () => {
   // Reset to page 1 if search/filter changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [filteredList]);
+  }, [filteredPatients]);
 
   const handleSearch = (text) => {
     dispatch(searchPatients(text));
@@ -145,6 +151,25 @@ const PatientListScreen = () => {
             <Text style={styles.filterText}>Filter</Text>
             <Ionicons name="filter" size={20} color={COLORS.primary} />
           </TouchableOpacity>
+          {showFilter && (
+            <View style={styles.filterOptions}>
+              {['All', 'Active', 'overdue'].map(status => (
+                <TouchableOpacity
+                  key={status}
+                  style={[
+                    styles.filterOption,
+                    filterStatus === status && styles.filterOptionActive
+                  ]}
+                  onPress={() => {
+                    setFilterStatus(status);
+                    setShowFilter(false);
+                  }}
+                >
+                  <Text style={{ color: filterStatus === status ? '#fff' : '#5856D6' }}>{status}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
         </View>
       </View>
       <View style={styles.formContainer}>
@@ -272,6 +297,27 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginRight: 4,
     fontSize: 15,
+  },
+  filterOptions: {
+    position: 'absolute',
+    top: 45,
+    right: 0,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    elevation: 4,
+    zIndex: 10,
+    padding: 6,
+    flexDirection: 'column',
+  },
+  filterOption: {
+    paddingVertical: 6,
+    paddingHorizontal: 16,
+    borderRadius: 6,
+    marginVertical: 2,
+    backgroundColor: '#f0f0f0',
+  },
+  filterOptionActive: {
+    backgroundColor: '#5856D6',
   },
   formContainer: {
     backgroundColor: '#fff',

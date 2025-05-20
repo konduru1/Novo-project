@@ -7,8 +7,8 @@ import BrainTestScreen from '../screens/main/BrainTestScreen';
 import ParkinsonTestScreen from '../screens/main/ParkinsonTestScreen';
 import ParkinsonTestResultScreen from '../screens/main/ParkinsonTestResultScreen';
 import AlzheimerTestScreen from '../screens/main/AlzheimerTestScreen';
-
 import EpilepsyTestScreen from '../screens/main/EpilepsyTestScreen';
+import ForgotPasswordScreen from '../screens/auth/ForgotPasswordScreen';
 
 const Stack = createStackNavigator();
 
@@ -54,8 +54,21 @@ const AppNavigator = () => {
         component={LoginScreen}
         options={{ headerShown: false }}
       />
-       <Stack.Screen name="AlzheimerTestScreen" component={AlzheimerTestScreen}  options={{ title: 'Alzheimer Test', headerShown: false }} />
-       <Stack.Screen name="EpilepsyTestScreen" component={EpilepsyTestScreen}  options={{ title: 'Epliepsy Test', headerShown: false }} />
+      <Stack.Screen
+        name="AlzheimerTestScreen"
+        component={AlzheimerTestScreen}
+        options={{ title: 'Alzheimer Test', headerShown: false }}
+      />
+      <Stack.Screen
+        name="EpilepsyTestScreen"
+        component={EpilepsyTestScreen}
+        options={{ title: 'Epliepsy Test', headerShown: false }}
+      />
+      <Stack.Screen
+        name="ForgotPasswordScreen"
+        component={ForgotPasswordScreen}
+        options={{ headerShown: false }}
+      />
     </Stack.Navigator>
   );
 };

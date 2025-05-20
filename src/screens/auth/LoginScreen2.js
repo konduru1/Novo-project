@@ -27,41 +27,57 @@ const LoginScreen = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleLogin = () => {
-    if (username && password) {
-      try {
-        if (username === 'doctor@gmail.com' && password === 'test') {
-          console.log('Navigating to PatientListScreen');
-          navigation.navigate('PatientListScreen'); // Ensure the name matches the Stack.Screen name
-        } else {
-          Alert.alert('Error', 'Invalid credentials');
-        }
-      } catch (error) {
-        console.log('Navigation error:', error);
-        Alert.alert('Error', 'Something went wrong');
+ const handleLogin = () => {
+  const validEmail = 'doctor@gmail.com';
+  const validPassword = 'test';
+
+  if (username && password) {
+    try {
+      if (username !== validEmail) {
+        Alert.alert('Invalid Email', 'This email is not registered');
+      } else if (password !== validPassword) {
+        Alert.alert('Wrong Password', 'invalid password');
+      } else {
+        console.log('Navigating to PatientListScreen');
+        navigation.navigate('PatientListScreen');
       }
-    } else {
-      Alert.alert('Error', 'Please enter username and password');
+    } catch (error) {
+      console.log('Navigation error:', error);
+      Alert.alert('Error', 'Something went wrong');
     }
-  };
+  } else {
+    Alert.alert('Error', 'Please enter username and password');
+  }
+};
+
 
   const handleTouchID = () => {
     const optionalConfigObject = {
-      title: 'Authentication Required', // Android
-      imageColor: COLORS.primary, // Android
-      imageErrorColor: COLORS.error, // Android
-      sensorDescription: 'Touch sensor', // Android
-      sensorErrorDescription: 'Failed', // Android
-      cancelText: 'Cancel', // Android
-      fallbackLabel: 'Use Passcode', // iOS
+      title: 'Authentication Required',
+      imageColor: COLORS.primary,
+      imageErrorColor: COLORS.error,
+      sensorDescription: 'Touch sensor',
+      sensorErrorDescription: 'Failed',
+      cancelText: 'Cancel',
+      fallbackLabel: 'Use Passcode',
     };
-    TouchID.authenticate('Authenticate with Touch ID', optionalConfigObject)
-      .then(() => {
-        Alert.alert('Success', 'Authenticated successfully');
-        navigation.navigate('PatientListScreen'); // Navigate on successful authentication
+
+    TouchID.isSupported(optionalConfigObject)
+      .then(biometryType => {
+        TouchID.authenticate('Authenticate with Fingerprint', optionalConfigObject)
+          .then(() => {
+            Alert.alert('Success', 'Authenticated successfully');
+            navigation.navigate('PatientListScreen');
+          })
+          .catch(() => {
+            Alert.alert('Error', 'Authentication failed');
+          });
       })
-      .catch(() => {
-        Alert.alert('Error', 'Authentication failed');
+      .catch(error => {
+        Alert.alert(
+          'Fingerprint Not Available',
+          'Your device does not support fingerprint authentication or it is not set up.'
+        );
       });
   };
 
@@ -118,7 +134,7 @@ const LoginScreen = () => {
           <Text style={styles.touchIdText}>Tap to use Fingerprint</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('ForgotPasswordScreen')}>
           <Text style={styles.forgotPassword}>Forgot password ?</Text>
         </TouchableOpacity>
 

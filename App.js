@@ -14,7 +14,7 @@ import ReportsScreen from './src/screens/main/ReportsScreen.js';
 import OnboardingScreen from './src/screens/onboarding/OnboardingScreen.js';
 import LoginScreen from './src/screens/auth/LoginScreen2.js';
 import VerifyOtpScreen from './src/screens/auth/VerifyOtpScreen.js';
-import ForgotPasswordScreen from './src/screens/auth/ForgotPasswordScreen.js';
+//import ForgotPasswordScreen from './src/screens/auth/ForgotPasswordScreen.js';
 import ResetPasswordScreen from './src/screens/auth/ResetPasswordScreen.js';
 //import DoctorScreen from './src/screens/main/DoctorScreen.js';
 import PatientListScreen from './src/screens/main/PatientListScreen.js';
@@ -23,6 +23,7 @@ import ParkinsonTestScreen from './src/screens/main/ParkinsonTestScreen.js';
 import BottomTabNavigator from './src/navigation/BottomTabNavigator.js';
 import AlzheimerTestScreen from './src/screens/main/AlzheimerTestScreen.js';
 import EpilepsyTestScreen from './src/screens/main/EpilepsyTestScreen.js';
+import ForgotPasswordScreen from './src/screens/auth/ForgotPasswordScreen.js';
 
 //import CustomTabBar from './src/components/CustomTabBar.js';
 //import AppointmentsScreen from './src/screens/main/AppointmentsScreen.js';
@@ -46,7 +47,7 @@ const App = () => {
             <Stack.Screen name="Onboarding" component={OnboardingScreen} options={{ headerShown: false, title: 'Onboarding' }} />
             <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false, title: 'Login' }} />
             <Stack.Screen name="VerifyOtp" component={VerifyOtpScreen} options={{ headerShown: false, title: 'Verify OTP' }} />
-            <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} options={{ headerShown: false, title: 'Forgot Password' }} />
+            <Stack.Screen name="ForgotPasswordScreen" component={ForgotPasswordScreen} options={{ headerShown: false, title: 'Forgot Password' }} />
             <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} options={{ headerShown: false, title: 'Reset Password' }} />
             <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false, title: 'Home' }} />
             <Stack.Screen name="PatientDetailsScreen" component={PatientDetailsScreen} options={{ headerShown: false, title: 'Patient Details' }} />

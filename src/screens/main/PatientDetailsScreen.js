@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, SafeAreaView } from "react-native";
+import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, SafeAreaView, Modal } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
 import { addPrescription } from '../../redux/slices/patientsSlice'; // Corrected import path
 import { useNavigation } from '@react-navigation/native'; // Import useNavigation hook
@@ -6,11 +6,14 @@ import Ionicons from 'react-native-vector-icons/Ionicons'; // Import Ionicons
 import { handleUploadReports } from '../../utils/uploadReports'; // Import the upload function
 import { handleDownloadReports } from '../../utils/downloadReports'; // Import the download function
 import { COLORS } from '../../constants/theme';
+import { useState } from "react"; // Import useState
 
 const PatientDetailsScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const currentPatient = useSelector((state) => state.patients.selectedPatient); // Corrected selector
-  //const currentPatient = useSelector((state) => state.patients.selectedPatient);
+  const [showHeartRateModal, setShowHeartRateModal] = useState(false);
+  const [showTemperatureModal, setShowTemperatureModal] = useState(false);
+  const [showGlucoseModal, setShowGlucoseModal] = useState(false);
 
   if (!currentPatient) {
     return (
@@ -116,41 +119,50 @@ const PatientDetailsScreen = ({ navigation }) => {
 
         {/* Health Metrics */}
         <View style={styles.metricsContainer}>
-          <View style={styles.metricCard}>
-            <TouchableOpacity style={styles.metricIconContainer}>
-              <Ionicons name="heart" size={44} color="#FF0000"  style={styles.metricIcon} />
-              <Ionicons name="pulse" size={30} color="#FFFFFF"  />
-            </TouchableOpacity>
+          {/* Heart Rate */}
+          <TouchableOpacity style={styles.metricCard} onPress={() => setShowHeartRateModal(true)}>
+            <View style={styles.metricIconContainer}>
+              <Ionicons name="heart" size={44} color="#FF0000" style={styles.metricIcon} />
+              <Ionicons name="pulse" size={30} color="#FFFFFF" />
+            </View>
             <Text style={styles.metricTitle1}>Heart Rate</Text>
             <Text style={styles.metricValue1}>
               {healthMetrics.heartRate}
               <Text style={styles.metricUnit}> bpm</Text>
             </Text>
-          </View>
+          </TouchableOpacity>
 
-          <View style={styles.metricCard}>
-            <Ionicons name="thermometer-outline" size={44} color="#5dece0"  />
+          {/* Body Temperature */}
+          <TouchableOpacity style={styles.metricCard} onPress={() => setShowTemperatureModal(true)}>
+            <Ionicons name="thermometer-outline" size={44} color="#5dece0" />
             <Text style={styles.metricTitle}>Body Temperature</Text>
             <Text style={styles.metricValue}>
               {healthMetrics.bodyTemperature}
               <Text style={styles.metricUnit}>°F</Text>
             </Text>
-          </View>
+          </TouchableOpacity>
 
-          <View style={styles.metricCard}>
-            <Ionicons name="water" size={44} color= "#00bfff"  />
+          {/* Glucose */}
+          <TouchableOpacity style={styles.metricCard} onPress={() => setShowGlucoseModal(true)}>
+            <Ionicons name="water" size={44} color="#00bfff" />
             <Text style={styles.metricTitle}>Glucose</Text>
             <Text style={styles.metricValue}>
               {healthMetrics.glucose}
               <Text style={styles.metricUnit}> mg/dL</Text>
             </Text>
-          </View>
+          </TouchableOpacity>
         </View>
 
         {/* Test Reports */}
         <View style={styles.reportsSection}>
+           <TouchableOpacity
+            style={styles.brainTestButton}
+            onPress={() => navigation.navigate('BrainTestScreen')} // Navigate to BrainTestScreen
+          >
+            <Text style={styles.brainTestButtonText}>Go to Brain Test</Text>
+          </TouchableOpacity>
           <Text style={styles.sectionTitle}>Test Reports</Text>
-          <View style={styles.reportsContainer}>
+          <View style={styles.reportsCard}>
             {testReports.length > 0 ? (
               testReports.map((report) => (
                 <View key={report.id} style={styles.reportItem}>
@@ -175,35 +187,28 @@ const PatientDetailsScreen = ({ navigation }) => {
               <Text style={styles.noDataText}>No test reports available</Text>
             )}
           </View>
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => navigation.navigate('BrainTestScreen')} // Navigate to BrainTestScreen
-          >
-            <Text style={styles.buttonText}>Go to Brain Test</Text>
-          </TouchableOpacity>
+         
         </View>
 
         {/* Prescriptions */}
         <View style={styles.prescriptionsSection}>
           <Text style={styles.sectionTitle}>Prescriptions</Text>
           <TouchableOpacity style={styles.addPrescriptionButton} onPress={handleAddPrescription}>
-            {/* <PlusCircle color="#4CAF50" size={16} /> */}
+            <Ionicons name="add-circle-outline" size={18} color="#4CAF50" />
             <Text style={styles.addPrescriptionText}>Add a prescription</Text>
           </TouchableOpacity>
-
-          <View style={styles.prescriptionsList}>
+          <View style={styles.prescriptionsCard}>
             <View style={styles.prescriptionHeader}>
               <Text style={styles.prescriptionHeaderText}>Prescriptions</Text>
               <Text style={styles.prescriptionHeaderText}>Date</Text>
               <Text style={styles.prescriptionHeaderText}>Duration</Text>
             </View>
+            <View style={styles.divider} />
             {prescriptions.length > 0 ? (
               prescriptions.map((prescription) => (
                 <View key={prescription.id} style={styles.prescriptionItem}>
                   <View style={styles.prescriptionNameContainer}>
-                    <View style={styles.prescriptionIcon}>
-                      {/* <FileText color="#FF9800" size={16} /> */}
-                    </View>
+                    <Ionicons name="medkit-outline" size={16} color="#FF9800" style={styles.prescriptionIcon} />
                     <Text style={styles.prescriptionName}>{prescription.name}</Text>
                   </View>
                   <Text style={styles.prescriptionDate}>{prescription.date}</Text>
@@ -211,12 +216,87 @@ const PatientDetailsScreen = ({ navigation }) => {
                 </View>
               ))
             ) : (
-              <Text style={styles.noDataText}>No prescriptions available</Text>
+              <View style={styles.emptyState}>
+                <Ionicons name="medkit-outline" size={36} color="#b0b0b0" />
+                <Text style={styles.noDataText}>No prescriptions available</Text>
+              </View>
             )}
           </View>
         </View>
         
       </ScrollView>
+
+      {/* Heart Rate Modal */}
+      <Modal
+        visible={showHeartRateModal}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowHeartRateModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Heart Rate Details</Text>
+            <Text style={styles.modalValue}>
+              {healthMetrics.heartRate} <Text style={styles.metricUnit}>bpm</Text>
+            </Text>
+            <Text style={styles.modalDescription}>
+              Normal resting heart rate for adults ranges from 60 to 100 bpm.
+              If your heart rate is consistently outside this range, consult your doctor.
+            </Text>
+            <TouchableOpacity style={styles.closeButton} onPress={() => setShowHeartRateModal(false)}>
+              <Text style={styles.closeButtonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Body Temperature Modal */}
+      <Modal
+        visible={showTemperatureModal}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowTemperatureModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Body Temperature Details</Text>
+            <Text style={styles.modalValue}>
+              {healthMetrics.bodyTemperature} <Text style={styles.metricUnit}>°F</Text>
+            </Text>
+            <Text style={styles.modalDescription}>
+              Normal body temperature for adults is about 97°F to 99°F (36.1°C to 37.2°C).
+              If your temperature is outside this range, consult your doctor.
+            </Text>
+            <TouchableOpacity style={styles.closeButton} onPress={() => setShowTemperatureModal(false)}>
+              <Text style={styles.closeButtonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Glucose Modal */}
+      <Modal
+        visible={showGlucoseModal}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowGlucoseModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Glucose Details</Text>
+            <Text style={styles.modalValue}>
+              {healthMetrics.glucose} <Text style={styles.metricUnit}>mg/dL</Text>
+            </Text>
+            <Text style={styles.modalDescription}>
+              Normal fasting blood glucose is 70–99 mg/dL.
+              If your glucose level is outside this range, consult your doctor.
+            </Text>
+            <TouchableOpacity style={styles.closeButton} onPress={() => setShowGlucoseModal(false)}>
+              <Text style={styles.closeButtonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     
     </SafeAreaView>
   );
@@ -407,9 +487,29 @@ const styles = StyleSheet.create({
   reportsSection: {
     marginVertical: 12,
   },
-  reportsContainer: {
-    flexDirection: "row",
+  reportsCard: {
+    backgroundColor: "#fff",
+    borderRadius: 12,
     marginHorizontal: 16,
+    padding: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
+    marginBottom: 16,
+  },
+  brainTestButton: {
+    backgroundColor: '#6C63FF',
+    paddingVertical: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 16,
+  },
+  brainTestButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   reportItem: {
     alignItems: "center",
@@ -448,16 +548,17 @@ const styles = StyleSheet.create({
     marginLeft: 4,
     fontSize: 14,
   },
-  prescriptionsList: {
+  prescriptionsCard: {
     backgroundColor: "#fff",
     borderRadius: 12,
     marginHorizontal: 16,
-    padding: 16,
+    padding: 0,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.08,
     shadowRadius: 4,
     elevation: 2,
+    marginBottom: 16,
   },
   prescriptionHeader: {
     flexDirection: "row",
@@ -499,6 +600,16 @@ const styles = StyleSheet.create({
   prescriptionDuration: {
     fontSize: 12,
     color: "#666",
+  },
+  emptyState: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 16,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: "#e0e0e0",
+    marginHorizontal: 12,
   },
   button: {
     backgroundColor: '#6C63FF',
@@ -550,7 +661,51 @@ const styles = StyleSheet.create({
   top:10,
    
     
-  }
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    width: '80%',
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 24,
+    alignItems: 'center',
+    elevation: 8,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#FF0000',
+    marginBottom: 12,
+  },
+  modalValue: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 8,
+  },
+  modalDescription: {
+    fontSize: 15,
+    color: '#555',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  closeButton: {
+    backgroundColor: '#5856D6',
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 24,
+    marginTop: 8,
+  },
+  closeButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
 });
 
 export default PatientDetailsScreen;
